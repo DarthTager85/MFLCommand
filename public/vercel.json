@@ -1,5 +1,5 @@
 {
   "rewrites": [
-    { "source": "/mfl/:path*", "destination": "https://api.myfantasyleague.com/:path*" }
+    { "source": "/mfl/:path*", "destination": "https://www42.myfantasyleague.com/:path*" }
   ]
 }
