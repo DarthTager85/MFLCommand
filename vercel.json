@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/mfl/:path*", "destination": "https://api.myfantasyleague.com/:path*" }
+  ]
+}
