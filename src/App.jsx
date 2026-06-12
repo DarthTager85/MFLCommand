@@ -32,7 +32,7 @@ const LS = {
 
 export default function App() {
   const [settings, setSettings] = useState(() => LS.get('mflcc:settings', {
-    leagueId: '', year: String(new Date().getFullYear()), franchiseId: '0001',
+    leagueId: '', year: String(new Date().getFullYear()), franchiseId: '0001', apiKey: '',
   }))
   const [mode, setMode] = useState(() => LS.get('mflcc:mode', MODES.WIN_NOW))
   const [notes, setNotes] = useState(() => LS.get('mflcc:notes', ''))
@@ -54,7 +54,7 @@ export default function App() {
     }
     try {
       if (force) clearCache(settings.year, settings.leagueId)
-      const live = await loadLeagueData(settings.year, settings.leagueId, { force })
+      const live = await loadLeagueData(settings.year, settings.leagueId, { force, apiKey: settings.apiKey })
       setData(live)
     } catch (e) {
       console.error(e)
@@ -65,7 +65,7 @@ export default function App() {
     }
   }
 
-  useEffect(() => { load() }, [settings.leagueId, settings.year]) // eslint-disable-line
+  useEffect(() => { load() }, [settings.leagueId, settings.year, settings.apiKey]) // eslint-disable-line
 
   const model = useMemo(
     () => (data ? buildModel(data, mode, settings.franchiseId, parseInt(settings.year)) : null),
@@ -107,7 +107,7 @@ export default function App() {
         {/* Settings panel */}
         {showSettings && (
           <div className="border-t border-ink-700 bg-ink-900">
-            <div className="max-w-7xl mx-auto px-4 py-3 grid sm:grid-cols-4 gap-3 items-end">
+            <div className="max-w-7xl mx-auto px-4 py-3 grid sm:grid-cols-5 gap-3 items-end">
               <label className="text-xs text-slate-400">League ID
                 <input className="input mt-1" placeholder="e.g. 12345" value={settings.leagueId}
                   onChange={(e) => setSettings({ ...settings, leagueId: e.target.value.trim() })} />
@@ -115,6 +115,10 @@ export default function App() {
               <label className="text-xs text-slate-400">Year
                 <input className="input mt-1" value={settings.year}
                   onChange={(e) => setSettings({ ...settings, year: e.target.value.trim() })} />
+              </label>
+              <label className="text-xs text-slate-400">API Key <span className="text-slate-600">(private leagues)</span>
+                <input className="input mt-1" type="password" placeholder="From your league's API page" value={settings.apiKey}
+                  onChange={(e) => setSettings({ ...settings, apiKey: e.target.value.trim() })} />
               </label>
               <label className="text-xs text-slate-400">My Franchise
                 <select className="input mt-1" value={settings.franchiseId}

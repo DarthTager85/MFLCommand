@@ -22,7 +22,7 @@ export function clearCache(year, leagueId) {
     .forEach((k) => localStorage.removeItem(k))
 }
 
-async function fetchXml(year, leagueId, type, extraParams = {}, { force = false } = {}) {
+async function fetchXml(year, leagueId, type, extraParams = {}, { force = false, apiKey = '' } = {}) {
   const key = cacheKey(year, leagueId, type + JSON.stringify(extraParams))
   if (!force) {
     try {
@@ -33,6 +33,7 @@ async function fetchXml(year, leagueId, type, extraParams = {}, { force = false 
     } catch { /* ignore bad cache */ }
   }
   const params = new URLSearchParams({ TYPE: type, L: leagueId, JSON: '0', ...extraParams })
+  if (apiKey) params.set('APIKEY', apiKey) // required for private leagues
   // Relative /mfl path → proxied to api.myfantasyleague.com (see header comment)
   const url = `/mfl/${year}/export?${params}`
   const res = await fetch(url)
@@ -149,8 +150,8 @@ export async function getProjectedScores(year, leagueId, week, opts) {
 }
 
 /** Pull everything the app needs in parallel. Throws on failure → caller falls back to sample. */
-export async function loadLeagueData(year, leagueId, { force = false } = {}) {
-  const opts = { force }
+export async function loadLeagueData(year, leagueId, { force = false, apiKey = '' } = {}) {
+  const opts = { force, apiKey }
   const [league, rosters, standings, assets, tradeBait, players] = await Promise.all([
     getLeague(year, leagueId, opts),
     getRosters(year, leagueId, opts),
